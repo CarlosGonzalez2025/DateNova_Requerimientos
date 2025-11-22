@@ -6,8 +6,9 @@ import DataArchitectureSection from './components/sections/DataArchitectureSecti
 import ProcessFlowsSection from './components/sections/ProcessFlowsSection';
 import TechnicalSection from './components/sections/TechnicalSection';
 import FinalDetailsSection from './components/sections/FinalDetailsSection';
+import ProjectReportView from './components/ProjectReportView';
 import { Button, Input } from './components/ui/Common';
-import { ChevronLeft, ChevronRight, CheckCircle, Download, Database, ShieldCheck, Rocket, LogOut, User, ArrowRight, Search, Wifi, Server, Activity, Loader2, Cloud } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, Download, Database, ShieldCheck, Rocket, LogOut, User, ArrowRight, Search, Wifi, Server, Activity, Loader2, Cloud, FileText } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { saveProjectToDB, getProjectsFromDB, signIn, signOut, getCurrentSession } from './services/supabaseClient';
 
@@ -252,7 +253,7 @@ const AdminDashboard = ({ onExit, onLoadProject }: { onExit: () => void, onLoadP
                     </div>
                     <div className="w-px h-8 bg-slate-200 hidden md:block"></div>
                     <Button onClick={() => onLoadProject(p)} className="flex-shrink-0 h-10">
-                    Ver Detalles <ArrowRight className="w-4 h-4 ml-2" />
+                    Ver Informe <FileText className="w-4 h-4 ml-2" />
                     </Button>
                 </div>
               </div>
@@ -267,10 +268,9 @@ const AdminDashboard = ({ onExit, onLoadProject }: { onExit: () => void, onLoadP
 // --- MAIN APP (Client Wizard) ---
 
 function App() {
-  const [view, setView] = useState<'landing' | 'client' | 'admin'>('landing');
+  const [view, setView] = useState<'landing' | 'client' | 'admin' | 'report'>('landing');
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<DiscoveryData>(INITIAL_DATA);
-  const [isReadOnly, setIsReadOnly] = useState(false); 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize ID if not present
@@ -290,13 +290,13 @@ function App() {
 
   // Simple local draft saving (fallback)
   useEffect(() => {
-    if (view === 'client' && !isReadOnly && data.id) {
+    if (view === 'client' && data.id) {
       localStorage.setItem('currentDraft', JSON.stringify(data));
     }
-  }, [data, view, isReadOnly]);
+  }, [data, view]);
 
   const updateData = (newData: Partial<DiscoveryData>) => {
-    if (isReadOnly) return;
+    if (view !== 'client') return; // Double check
     setData(prev => ({ ...prev, ...newData }));
   };
 
@@ -333,15 +333,14 @@ function App() {
     }
   };
 
-  const loadProjectForReview = (project: DiscoveryData) => {
+  const loadProjectForReport = (project: DiscoveryData) => {
     setData(project);
-    setIsReadOnly(true);
-    setView('client'); 
-    setCurrentStep(0);
+    setView('report'); 
   };
 
-  if (view === 'landing') return <LandingPage onStartClient={() => { setIsReadOnly(false); setData(INITIAL_DATA); setView('client'); }} onStartAdmin={() => setView('admin')} />;
-  if (view === 'admin') return <AdminDashboard onExit={() => setView('landing')} onLoadProject={loadProjectForReview} />;
+  if (view === 'landing') return <LandingPage onStartClient={() => { setData(INITIAL_DATA); setView('client'); }} onStartAdmin={() => setView('admin')} />;
+  if (view === 'admin') return <AdminDashboard onExit={() => setView('landing')} onLoadProject={loadProjectForReport} />;
+  if (view === 'report') return <ProjectReportView data={data} onBack={() => setView('admin')} />;
 
   // --- WIZARD UI ---
   
@@ -357,12 +356,10 @@ function App() {
           <div className="text-center py-10">
              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
              <h2 className="text-3xl font-bold text-slate-800">
-               {isReadOnly ? 'Revisión de Proyecto' : '¡Todo Listo!'}
+               ¡Todo Listo!
              </h2>
              <p className="text-slate-600 mt-2 max-w-md mx-auto">
-               {isReadOnly 
-                  ? 'Estás visualizando los datos de este cliente en modo lectura.' 
-                  : 'Has completado el discovery. La información se guardará de forma segura en nuestra nube.'}
+               Has completado el discovery. La información se guardará de forma segura en nuestra nube.
              </p>
           </div>
 
@@ -370,14 +367,12 @@ function App() {
              <pre>{JSON.stringify(data, null, 2)}</pre>
           </div>
 
-          {!isReadOnly && (
-            <div className="flex justify-center gap-4">
-               <Button onClick={handleSubmit} disabled={isSubmitting} className="flex items-center gap-2 bg-secondary hover:bg-blue-700 px-8 py-3 text-lg shadow-lg shadow-blue-500/20 w-full md:w-auto justify-center">
-                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
-                  {isSubmitting ? 'Guardando en Nube...' : 'Enviar a DateNova'}
-               </Button>
-            </div>
-          )}
+          <div className="flex justify-center gap-4">
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="flex items-center gap-2 bg-secondary hover:bg-blue-700 px-8 py-3 text-lg shadow-lg shadow-blue-500/20 w-full md:w-auto justify-center">
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
+                {isSubmitting ? 'Guardando en Nube...' : 'Enviar a DateNova'}
+              </Button>
+          </div>
         </div>
       );
       default: return null;
@@ -387,12 +382,12 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Sidebar / Stepper */}
-      <aside className={`w-full md:w-64 flex-shrink-0 ${isReadOnly ? 'bg-slate-800' : 'bg-primary'} text-slate-300 transition-colors duration-500`}>
+      <aside className={`w-full md:w-64 flex-shrink-0 bg-primary text-slate-300 transition-colors duration-500`}>
         <div className="p-6 border-b border-slate-700">
           <div className="flex items-center gap-2 font-bold text-white text-lg">
-             <span>{isReadOnly ? '🔒 Modo Admin' : '🚀 DateNova'}</span>
+             <span>🚀 DateNova</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">{isReadOnly ? 'Revisando Proyecto' : 'Discovery Template'}</p>
+          <p className="text-xs text-slate-400 mt-1">Discovery Template</p>
         </div>
         <nav className="p-4 space-y-1">
           {STEPS.map((step, idx) => (
@@ -410,26 +405,21 @@ function App() {
           ))}
         </nav>
         <div className="p-4 mt-auto border-t border-slate-700">
-           <Button variant="outline" onClick={() => setView(isReadOnly ? 'admin' : 'landing')} className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white text-xs">
-              <LogOut className="w-3 h-3 mr-2"/> {isReadOnly ? 'Volver al Dashboard' : 'Salir'}
+           <Button variant="outline" onClick={() => setView('landing')} className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white text-xs">
+              <LogOut className="w-3 h-3 mr-2"/> Salir
            </Button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 bg-slate-50 h-screen overflow-y-auto flex flex-col">
-        {isReadOnly && (
-           <div className="bg-amber-50 text-amber-800 px-6 py-2 text-xs font-medium text-center border-b border-amber-100 flex items-center justify-center gap-2">
-              <ShieldCheck className="w-3 h-3"/> VISTA DE ADMINISTRADOR (SOLO LECTURA)
-           </div>
-        )}
         <div className="max-w-4xl mx-auto p-6 md:p-12 pb-32 w-full flex-grow">
            {renderStep()}
         </div>
       </main>
 
       {/* Fixed Footer Navigation */}
-      <div className={`fixed bottom-0 right-0 left-0 md:left-64 bg-white border-t border-slate-200 p-4 px-8 flex justify-between items-center z-10 ${isReadOnly ? 'opacity-90' : ''}`}>
+      <div className={`fixed bottom-0 right-0 left-0 md:left-64 bg-white border-t border-slate-200 p-4 px-8 flex justify-between items-center z-10`}>
           <Button 
             variant="secondary" 
             onClick={prevStep} 
@@ -448,7 +438,7 @@ function App() {
             disabled={currentStep === STEPS.length - 1}
              className="flex items-center gap-2"
           >
-            {currentStep === STEPS.length - 1 ? (isReadOnly ? 'Finalizar Revisión' : 'Revisar Envío') : 'Siguiente'} 
+            {currentStep === STEPS.length - 1 ? 'Revisar Envío' : 'Siguiente'} 
             <ChevronRight className="w-4 h-4" />
           </Button>
       </div>
@@ -457,3 +447,4 @@ function App() {
 }
 
 export default App;
+    

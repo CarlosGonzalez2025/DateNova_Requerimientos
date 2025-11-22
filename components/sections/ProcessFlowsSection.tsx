@@ -1,7 +1,7 @@
 import React from 'react';
 import { DiscoveryData, Flow } from '../../types';
 import { SectionHeader, Button, IconButton } from '../ui/Common';
-import { Plus, Trash2, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, HelpCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
@@ -35,6 +35,14 @@ const ProcessFlowsSection: React.FC<Props> = ({ data, update }) => {
         title="3. Flujos de Proceso (Lógica de Negocio)" 
         description="Describa qué sucede 'detrás de cámaras'. Lógica Causa -> Efecto."
       />
+      
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6 text-sm text-blue-800 flex gap-3">
+         <HelpCircle className="w-5 h-5 shrink-0" />
+         <div>
+            <strong>¿Por qué pedimos esto?</strong>
+            <p>Estos flujos definen las funciones del Backend (API). Cada tarjeta aquí se convertirá en un <code>endpoint</code> o un <code>job</code> programado en el servidor.</p>
+         </div>
+      </div>
 
       <div className="grid gap-4">
         {data.flows.map((flow) => (

@@ -30,6 +30,7 @@ const VisionSection: React.FC<Props> = ({ data, update }) => {
           value={data.projectName} 
           onChange={handleChange('projectName')}
           onAiAssist={useAiHelper(updateField('projectName'), "Nombre creativo para el proyecto", "Visión")}
+          helpText="Usaremos este nombre para crear el repositorio de código (Git), la base de datos y la URL del proyecto. Debe ser corto y único."
         />
 
         <TextArea 
@@ -38,6 +39,7 @@ const VisionSection: React.FC<Props> = ({ data, update }) => {
           value={data.problem}
           onChange={handleChange('problem')}
           onAiAssist={useAiHelper(updateField('problem'), "Problemática a resolver", "Visión")}
+          helpText="Fundamental para los desarrolladores. Nos ayuda a entender la lógica de negocio compleja y priorizar funcionalidades críticas sobre las estéticas."
         />
 
         <TextArea 
@@ -46,6 +48,7 @@ const VisionSection: React.FC<Props> = ({ data, update }) => {
           value={data.mvpObjective}
           onChange={handleChange('mvpObjective')}
           onAiAssist={useAiHelper(updateField('mvpObjective'), "Objetivo del MVP", "Visión")}
+          helpText="Define el alcance técnico. Nos dice qué APIs construir primero y qué dejar para la 'Fase 2'. Evita el 'scope creep' (alcance no planeado)."
         />
 
         <Input 
@@ -54,6 +57,7 @@ const VisionSection: React.FC<Props> = ({ data, update }) => {
           value={data.users} 
           onChange={handleChange('users')}
           onAiAssist={useAiHelper(updateField('users'), "Arquetipos de usuario", "Visión")}
+          helpText="Estos se convertirán en 'Roles de Sistema' y tablas de autenticación. Define quién necesita login y contraseña."
         />
 
         <TextArea 
@@ -62,6 +66,7 @@ const VisionSection: React.FC<Props> = ({ data, update }) => {
           value={data.kpis}
           onChange={handleChange('kpis')}
           onAiAssist={useAiHelper(updateField('kpis'), "KPIs de éxito", "Visión")}
+          helpText="Técnicamente, esto nos dice qué eventos debemos trackear en la base de datos para generar reportes de analítica."
         />
       </div>
     </div>

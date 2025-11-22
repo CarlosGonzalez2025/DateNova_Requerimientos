@@ -68,6 +68,10 @@ const DataArchitectureSection: React.FC<Props> = ({ data, update }) => {
         description="Liste los 'Objetos de Negocio'. No piense en pantallas, piense en datos (Ej: Pedidos, Clientes, Productos)."
       />
 
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6 text-sm text-blue-800">
+        <strong>💡 Nota del Arquitecto:</strong> Cada "Entidad" que definas aquí se convertirá en una Tabla SQL o una Colección NoSQL. Los atributos serán las columnas. Sé exhaustivo.
+      </div>
+
       {data.entities.map((entity, index) => (
         <div key={entity.id} className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center justify-between">
@@ -87,11 +91,11 @@ const DataArchitectureSection: React.FC<Props> = ({ data, update }) => {
             <table className="min-w-full text-sm text-left">
               <thead className="bg-slate-100 text-slate-600 font-medium">
                 <tr>
-                  <th className="px-3 py-2 rounded-l-md">Campo / Atributo</th>
-                  <th className="px-3 py-2">Tipo de Dato</th>
-                  <th className="px-3 py-2 text-center">Obligatorio</th>
-                  <th className="px-3 py-2">Validaciones</th>
-                  <th className="px-3 py-2">Origen (Quién)</th>
+                  <th className="px-3 py-2 rounded-l-md w-1/4">Campo / Atributo</th>
+                  <th className="px-3 py-2 w-1/6">Tipo de Dato</th>
+                  <th className="px-3 py-2 text-center w-20">Obligatorio</th>
+                  <th className="px-3 py-2 w-1/4">Validaciones</th>
+                  <th className="px-3 py-2 w-1/6">Origen (Quién)</th>
                   <th className="px-3 py-2 rounded-r-md w-10"></th>
                 </tr>
               </thead>
